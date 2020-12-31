@@ -1,0 +1,4 @@
+rootProject.name = 'user'
+include 'user-entity'
+include 'user-api'
+
