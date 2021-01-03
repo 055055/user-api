@@ -14,7 +14,8 @@ import static org.springframework.context.annotation.FilterType.ASSIGNABLE_TYPE;
 @DataJpaTest(includeFilters = @ComponentScan.Filter(
                                 type = ASSIGNABLE_TYPE,
                             classes = {JpaConfig.class})
-            )//@DataJpaTest시 JpaConfig Config Scan하지 못하는 것 해결
+            )//@DataJpaTest시 JpaConfig Config Scan하지 못하는 것 해결.
+            // ASSIGNABLE_TYPE는 클래스를 기준으로 객체를 가지고 온다.
 class UserRepositoryTest {
 
     @Autowired
@@ -29,7 +30,7 @@ class UserRepositoryTest {
                 .email("055055@055055.com")
                 .password("055055")
                 .name("055055")
-                .role("user")
+                .role(User.Role.ADMIN)
                 .build();
         //when
         User save = userRepository.save(user);
