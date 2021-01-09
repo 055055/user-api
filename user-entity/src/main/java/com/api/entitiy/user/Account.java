@@ -13,7 +13,7 @@ import javax.persistence.*;
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @Entity
-public class User extends BaseEntitiy {
+public class Account extends BaseEntitiy {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -32,7 +32,7 @@ public class User extends BaseEntitiy {
     private Role role;
 
     @Builder
-    public User(String email, String password, String name, Role role) {
+    public Account(String email, String password, String name, Role role) {
         this.email = email;
         this.password = password;
         this.name = name;
@@ -52,7 +52,7 @@ public class User extends BaseEntitiy {
     }
 
     public enum Role{
-        MEMBER("01","member"),
+        MEMBER("01","user"),
         ADMIN("02","admin");
 
         private String code;
@@ -74,7 +74,7 @@ public class User extends BaseEntitiy {
 
     @Override
     public String toString() {
-        return "User{" +
+        return "Account{" +
                 "email='" + email + '\'' +
                 ", password='" + password + '\'' +
                 ", name='" + name + '\'' +

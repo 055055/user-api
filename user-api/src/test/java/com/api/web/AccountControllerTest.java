@@ -1,23 +1,19 @@
 package com.api.web;
 
-import com.api.entitiy.user.User;
+import com.api.common.filter.CustomFilter;
+import com.api.entitiy.user.Account;
 import com.api.error.ServiceError;
 import com.api.error.ServiceException;
-import com.api.service.UserService;
+import com.api.service.AccountService;
 import com.api.web.dto.*;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.context.annotation.ComponentScan;
+import org.springframework.context.annotation.FilterType;
 import org.springframework.http.MediaType;
-import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.ResultActions;
-import org.springframework.test.web.servlet.setup.MockMvcBuilders;
-import org.springframework.web.context.WebApplicationContext;
-import org.springframework.web.filter.CharacterEncodingFilter;
 
 import java.time.LocalDateTime;
 import java.util.Arrays;
@@ -28,53 +24,42 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.BDDMockito.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
-import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
-@WebMvcTest( controllers = UserController.class)
-class UserControllerTest {
-
-    MockMvc mockMvc;
-
-    @Autowired
-    private WebApplicationContext ctx;
-
-    @Autowired
-    ObjectMapper objectMapper;
+@WebMvcTest(
+        controllers = AccountController.class,
+        excludeFilters = {@ComponentScan.Filter(type = FilterType.ASSIGNABLE_TYPE,
+                classes = CustomFilter.class)
+})
+class AccountControllerTest extends BasicControllerTest {
 
     @MockBean
-    UserService userService;
+    AccountService accountService;
 
-    @BeforeEach
-    public void setMockMvc(){
-        this.mockMvc = MockMvcBuilders.webAppContextSetup(ctx)
-                .alwaysDo(print())
-                .addFilters(new CharacterEncodingFilter("UTF-8", true)) //application/json;charset=UTF-8
-                .build();
-    }
 
     @DisplayName("유저 전체 조회 성공")
     @Test
     public void USER_FIND_ALL_SUCCESS() throws Exception {
         //given
-        UserDto adminUser = new UserDto();
+        AccountDto adminUser = new AccountDto();
         adminUser.setSeq(1L);
         adminUser.setEmail("055055@055055.com");
         adminUser.setName("055055");
-        adminUser.setRole(User.Role.ADMIN);
+        adminUser.setRole(Account.Role.ADMIN);
 
-        UserDto memberUser = new UserDto();
+        AccountDto memberUser = new AccountDto();
         memberUser.setSeq(2L);
         memberUser.setEmail("033033@033033.com");
         memberUser.setName("033033");
-        memberUser.setRole(User.Role.MEMBER);
+        memberUser.setRole(Account.Role.MEMBER);
 
-        given(this.userService.findAll()).willReturn(Arrays.asList(adminUser, memberUser));
+        given(this.accountService.findAll()).willReturn(Arrays.asList(adminUser, memberUser));
 
 
         //when
         ResultActions result = mockMvc.perform(get("/v1/user")
+                                        .header("X-AUTH-TOKEN",authToken)
                                         .accept(MediaType.APPLICATION_JSON_VALUE));
 
         //then
@@ -91,7 +76,7 @@ class UserControllerTest {
     @Test
     public void USER_FIND_ALL_EMPTY() throws Exception {
         //given
-        given(this.userService.findAll()).willReturn(Arrays.asList());
+        given(this.accountService.findAll()).willReturn(Arrays.asList());
 
 
         //when
@@ -111,19 +96,20 @@ class UserControllerTest {
         //given
         Long seq = 1L;
         String name = "055055";
-        UserDto user = new UserDto();
+        AccountDto user = new AccountDto();
         user.setSeq(seq);
         user.setEmail("055055@055055.com");
         user.setName(name);
-        user.setRole(User.Role.ADMIN);
+        user.setRole(Account.Role.ADMIN);
 
 
-        given(this.userService.findyBySeq(anyLong())).willReturn(user);
+        given(this.accountService.findyBySeq(anyLong())).willReturn(user);
 
 
         //when
         ResultActions result = mockMvc.perform(get("/v1/user/{seq}",seq)
-                                        .accept(MediaType.APPLICATION_JSON_VALUE));
+                                            .header("X-AUTH-TOKEN",authToken)
+                                            .accept(MediaType.APPLICATION_JSON_VALUE));
 
         //then
         result
@@ -139,13 +125,14 @@ class UserControllerTest {
         //given
         Long seq = 1L;
 
-        given(this.userService.findyBySeq(anyLong()))
+        given(this.accountService.findyBySeq(anyLong()))
                 .willThrow(new ServiceException(ServiceError.USER_NOT_FOUND));
 
 
         //when
         ResultActions result = mockMvc.perform(get("/v1/user/{seq}",seq)
-                                        .accept(MediaType.APPLICATION_JSON_VALUE));
+                                              .header("X-AUTH-TOKEN",authToken)
+                                              .accept(MediaType.APPLICATION_JSON_VALUE));
 
         //then
         result
@@ -162,29 +149,30 @@ class UserControllerTest {
         String email = "033033@033033.com";
         String name = "033033";
 
-        UserSaveReqDto req = new UserSaveReqDto();
+        AccountSaveReqDto req = new AccountSaveReqDto();
         req.setEmail(email);
         req.setName(name);
         req.setPassword("033033");
 
 
-        UserSaveResDto res = new UserSaveResDto();
+        AccountSaveResDto res = new AccountSaveResDto();
         res.setSeq(2L);
         res.setEmail(email);
         res.setName(name);
-        res.setRole(User.Role.MEMBER);
+        res.setRole(Account.Role.MEMBER);
         res.setModifiedDate(LocalDateTime.now());
         res.setCreateDate(LocalDateTime.now());
 
 
-        given(this.userService.save(any(UserSaveReqDto.class))).willReturn(res);
+        given(this.accountService.save(any(AccountSaveReqDto.class))).willReturn(res);
 
 
         //when
         ResultActions result = mockMvc.perform(post("/v1/user")
-                                        .accept(MediaType.APPLICATION_JSON_VALUE)
-                                        .contentType(MediaType.APPLICATION_JSON_VALUE)
-                                        .content(objectMapper.writeValueAsString(req)));
+                                              .header("X-AUTH-TOKEN",authToken)
+                                              .accept(MediaType.APPLICATION_JSON_VALUE)
+                                              .contentType(MediaType.APPLICATION_JSON_VALUE)
+                                              .content(objectMapper.writeValueAsString(req)));
 
         //then
         result
@@ -199,7 +187,7 @@ class UserControllerTest {
         Long seq = 1L;
 
         //given
-        willDoNothing().given(userService).delete(anyLong());
+        willDoNothing().given(accountService).delete(anyLong());
 
 
         //when
@@ -217,7 +205,7 @@ class UserControllerTest {
         Long seq = 1L;
 
         //given
-        willThrow(new ServiceException(ServiceError.USER_NOT_FOUND)).given(userService).delete(anyLong());
+        willThrow(new ServiceException(ServiceError.USER_NOT_FOUND)).given(accountService).delete(anyLong());
 
 
         //when
@@ -239,28 +227,29 @@ class UserControllerTest {
         String email = "055055@055055.com";
         LocalDateTime updateDtm = LocalDateTime.now();
 
-        UserUpdateReqDto req = new UserUpdateReqDto();
+        AccountUpdateReqDto req = new AccountUpdateReqDto();
         req.setName(name);
         req.setEmail(email);
 
-        UserUpdateResDto res = new UserUpdateResDto();
+        AccountUpdateResDto res = new AccountUpdateResDto();
         res.setEmail(email);
         res.setName(name);
-        res.setRole(User.Role.MEMBER);
+        res.setRole(Account.Role.MEMBER);
         res.setSeq(seq);
         res.setModifiedDate(updateDtm);
         res.setCreateDate(updateDtm.minusDays(1L));
 
 
         //given
-        given(userService.update(anyLong(),any(UserUpdateReqDto.class))).willReturn(res);
+        given(accountService.update(anyLong(),any(AccountUpdateReqDto.class))).willReturn(res);
 
 
         //when
         ResultActions result = mockMvc.perform(patch("/v1/user/{seq}",seq)
-                                            .accept(MediaType.APPLICATION_JSON_VALUE)
-                                            .contentType(MediaType.APPLICATION_JSON_VALUE)
-                                            .content(objectMapper.writeValueAsString(req)));
+                                                .header("X-AUTH-TOKEN",authToken)
+                                                .accept(MediaType.APPLICATION_JSON_VALUE)
+                                                .contentType(MediaType.APPLICATION_JSON_VALUE)
+                                                .content(objectMapper.writeValueAsString(req)));
 
 
         //then
@@ -276,19 +265,20 @@ class UserControllerTest {
         String name = "055055";
         String email = "055055@055055.com";
 
-        UserUpdateReqDto req = new UserUpdateReqDto();
+        AccountUpdateReqDto req = new AccountUpdateReqDto();
         req.setName(name);
         req.setEmail(email);
         //given
         willThrow(new ServiceException(ServiceError.INTERNAL_SERIVCE_ERROR))
-                .given(userService).update(anyLong(),any(UserUpdateReqDto.class));
+                .given(accountService).update(anyLong(),any(AccountUpdateReqDto.class));
 
 
         //when
         ResultActions result = mockMvc.perform(patch("/v1/user/{seq}",seq)
-                                        .accept(MediaType.APPLICATION_JSON_VALUE)
-                                        .contentType(MediaType.APPLICATION_JSON_VALUE)
-                                        .content(objectMapper.writeValueAsString(req)));
+                                                .header("X-AUTH-TOKEN",authToken)
+                                                .accept(MediaType.APPLICATION_JSON_VALUE)
+                                                .contentType(MediaType.APPLICATION_JSON_VALUE)
+                                                .content(objectMapper.writeValueAsString(req)));
 
         //then
         result.andExpect(status().isInternalServerError())

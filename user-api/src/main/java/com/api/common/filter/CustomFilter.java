@@ -1,5 +1,21 @@
 package com.api.common.filter;
 
+import com.api.common.config.JwtTokenProcess;
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+import lombok.val;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.web.filter.OncePerRequestFilter;
+import org.springframework.web.util.ContentCachingRequestWrapper;
+import org.springframework.web.util.ContentCachingResponseWrapper;
+
+import javax.servlet.FilterChain;
+import javax.servlet.ServletException;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.util.Arrays;
@@ -7,27 +23,15 @@ import java.util.Collections;
 import java.util.List;
 import java.util.stream.Stream;
 
-import javax.servlet.FilterChain;
-import javax.servlet.ServletException;
-import javax.servlet.annotation.WebFilter;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-
-import org.springframework.http.HttpStatus;
-import org.springframework.http.MediaType;
-import org.springframework.web.filter.OncePerRequestFilter;
-import org.springframework.web.util.ContentCachingRequestWrapper;
-import org.springframework.web.util.ContentCachingResponseWrapper;
-
-import lombok.val;
-import lombok.extern.slf4j.Slf4j;
-
 import static java.util.concurrent.TimeUnit.NANOSECONDS;
 
 @Slf4j
-@WebFilter(urlPatterns = "/*")
-public class Filter extends OncePerRequestFilter {
+@RequiredArgsConstructor
+public class CustomFilter extends OncePerRequestFilter {
+
+
     private static final ThreadLocal<Long> startTimeHolder = new ThreadLocal<>();
+    private final JwtTokenProcess jwtTokenProcess;
     private static final List<MediaType> VISIBLE_TYPES = Arrays.asList(
             MediaType.valueOf("text/*"),
             MediaType.APPLICATION_FORM_URLENCODED,
@@ -61,8 +65,22 @@ public class Filter extends OncePerRequestFilter {
     protected void beforeRequest(ContentCachingRequestWrapper request, ContentCachingResponseWrapper response) {
         //set StartTime
         startTimeHolder.set(System.nanoTime());
+
         if (log.isInfoEnabled()) {
             logRequestHeader(request, request.getRemoteAddr() + "|>");
+        }
+        jwtTokenValidator((HttpServletRequest) request);
+    }
+
+    private void jwtTokenValidator(HttpServletRequest request) {
+        //헤더에서 JWT를 받아옵니다.
+        String token = jwtTokenProcess.getToken(request);
+        //유효한 토큰인지 확인합니다.
+        if(token !=null && jwtTokenProcess.validateToken(token)){
+            //토큰이 유효하면 토큰으로부터 유저정보 받아오기
+            Authentication authentication = jwtTokenProcess.getAuthentication(token);
+            //SecurityContrext에 Authentication 객체 저장
+            SecurityContextHolder.getContext().setAuthentication(authentication);
         }
     }
 

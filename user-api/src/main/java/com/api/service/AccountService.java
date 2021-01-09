@@ -1,13 +1,17 @@
 package com.api.service;
 
-import com.api.entitiy.user.User;
+import com.api.entitiy.user.Account;
 import com.api.error.ServiceError;
 import com.api.error.ServiceException;
-import com.api.repository.UserRepository;
+import com.api.repository.AccountRepository;
 import com.api.web.dto.*;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.modelmapper.ModelMapper;
+import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.core.userdetails.UserDetailsService;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -17,16 +21,17 @@ import java.util.stream.Collectors;
 @Slf4j
 @Service
 @RequiredArgsConstructor
-public class UserService {
+public class AccountService implements UserDetailsService {
 
-    private final UserRepository userRepository;
+    private final AccountRepository accountRepository;
     private final ModelMapper modelMapper;
+    private final PasswordEncoder passwordEncoder;
 
     @Transactional(readOnly = true)
-    public List<UserDto> findAll() throws ServiceException{
+    public List<AccountDto> findAll() throws ServiceException{
         try {
-            List<User> all = userRepository.findAll();
-            return all.stream().map(e -> modelMapper.map(e, UserDto.class)).collect(Collectors.toList());
+            List<Account> all = accountRepository.findAll();
+            return all.stream().map(e -> modelMapper.map(e, AccountDto.class)).collect(Collectors.toList());
         }catch (Exception e){
             log.error("Exception : {}",e);
             throw new ServiceException(ServiceError.INTERNAL_SERIVCE_ERROR,e);
@@ -34,9 +39,9 @@ public class UserService {
     }
 
     @Transactional(readOnly = true)
-    public UserDto findyBySeq(Long seq) throws ServiceException {
+    public AccountDto findyBySeq(Long seq) throws ServiceException {
         try {
-            return userRepository.findById(seq).map(e-> modelMapper.map(e,UserDto.class))
+            return accountRepository.findById(seq).map(e-> modelMapper.map(e, AccountDto.class))
                     .orElseThrow(() -> { throw new ServiceException(ServiceError.USER_NOT_FOUND);});
         }catch (ServiceException se){
             log.error("ServiceException : {}",se.getServiceError(),se);
@@ -48,11 +53,11 @@ public class UserService {
     }
 
     @Transactional
-    public UserSaveResDto save(UserSaveReqDto req) throws ServiceException{
+    public AccountSaveResDto save(AccountSaveReqDto req) throws ServiceException{
         try {
-            userRepository.findByEmail(req.getEmail()).ifPresent(e -> { throw new ServiceException(ServiceError.USER_ID_DUPLICATE);});
-            User save = userRepository.save(req.createUser());
-            return modelMapper.map(save,UserSaveResDto.class);
+            accountRepository.findByEmail(req.getEmail()).ifPresent(e -> { throw new ServiceException(ServiceError.USER_ID_DUPLICATE);});
+            Account save = accountRepository.save(req.createAccount(passwordEncoder));
+            return modelMapper.map(save, AccountSaveResDto.class);
 
         }catch (ServiceException se){
             log.error("ServiceException : {}",se.getServiceError(),se);
@@ -66,7 +71,7 @@ public class UserService {
     @Transactional
     public void delete(Long seq) {
         try {
-             userRepository.findById(seq).ifPresentOrElse(e-> userRepository.delete(e)
+             accountRepository.findById(seq).ifPresentOrElse(e-> accountRepository.delete(e)
                      ,() -> { throw new ServiceException(ServiceError.USER_NOT_FOUND);});
         }catch (ServiceException se){
             log.error("ServiceException : {}",se.getServiceError(),se);
@@ -78,15 +83,15 @@ public class UserService {
     }
 
     @Transactional
-    public UserUpdateResDto update(Long seq, UserUpdateReqDto req) {
+    public AccountUpdateResDto update(Long seq, AccountUpdateReqDto req) {
         try {
-            User user = userRepository.findById(seq).orElseThrow(
+            Account account = accountRepository.findById(seq).orElseThrow(
                     () -> {
                         throw new ServiceException(ServiceError.USER_NOT_FOUND);
                     });
-            user.updateUser(req.getPassword(), req.getName(), req.getRole());
+            account.updateUser(req.getPassword(), req.getName(), req.getRole());
 
-            return modelMapper.map(user, UserUpdateResDto.class);
+            return modelMapper.map(account, AccountUpdateResDto.class);
         }catch (ServiceException se){
             log.error("ServiceException : {}",se.getServiceError(),se);
             throw new ServiceException(se.getServiceError());
@@ -95,5 +100,22 @@ public class UserService {
             throw new ServiceException(ServiceError.INTERNAL_SERIVCE_ERROR,e);
         }
 
+    }
+
+    @Transactional(readOnly = true)
+    public AccountLoginResDto login(AccountLoginReqDto req) throws ServiceException {
+        Account account = accountRepository.findByEmail(req.getEmail())
+                .orElseThrow(() -> new ServiceException(ServiceError.USER_OR_PASSWORD_INVALID));
+        log.debug("account = "+ account.toString());
+        if(!passwordEncoder.matches(req.getPassword(), account.getPassword())){
+            throw new ServiceException(ServiceError.USER_OR_PASSWORD_INVALID);
+        }
+        return modelMapper.map(account, AccountLoginResDto.class);
+    }
+
+    @Override
+    public UserDetails loadUserByUsername(String email) throws UsernameNotFoundException {
+        Account account = accountRepository.findByEmail(email).orElseThrow(()->new UsernameNotFoundException(email));
+        return new UserAccount(account);
     }
 }
