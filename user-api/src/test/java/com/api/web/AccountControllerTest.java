@@ -8,25 +8,39 @@ import com.api.service.AccountService;
 import com.api.web.dto.*;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.springframework.boot.test.autoconfigure.restdocs.AutoConfigureRestDocs;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.FilterType;
 import org.springframework.http.MediaType;
+import org.springframework.restdocs.RestDocumentationExtension;
+import org.springframework.restdocs.mockmvc.RestDocumentationRequestBuilders;
+import org.springframework.restdocs.mockmvc.RestDocumentationResultHandler;
+import org.springframework.restdocs.payload.JsonFieldType;
 import org.springframework.test.web.servlet.ResultActions;
 
 import java.time.LocalDateTime;
 import java.util.Arrays;
 
+import static com.api.restdocsConfig.RestDocsConfig.getDocumentRequest;
+import static com.api.restdocsConfig.RestDocsConfig.getDocumentResponse;
 import static org.hamcrest.Matchers.empty;
 import static org.hamcrest.Matchers.hasSize;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.BDDMockito.*;
+import static org.springframework.restdocs.mockmvc.MockMvcRestDocumentation.document;
+import static org.springframework.restdocs.payload.PayloadDocumentation.*;
+import static org.springframework.restdocs.request.RequestDocumentation.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
+
+@ExtendWith(RestDocumentationExtension.class)
+@AutoConfigureRestDocs(uriHost = "docs.api.com" )
 @WebMvcTest(
         controllers = AccountController.class,
         excludeFilters = {@ComponentScan.Filter(type = FilterType.ASSIGNABLE_TYPE,
@@ -67,9 +81,26 @@ class AccountControllerTest extends BasicControllerTest {
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$", hasSize(2)))
                 .andExpect(jsonPath("$.[0].seq").value("1"))
-                .andExpect(jsonPath("$.[1].seq").value("2"));
+                .andExpect(jsonPath("$.[1].seq").value("2"))
+                .andDo(GET_USER_FIND_ALL_DOCUMENT())
+
+        ;
 
 
+    }
+
+    private RestDocumentationResultHandler GET_USER_FIND_ALL_DOCUMENT() {
+        return document("api-user-findAll",
+                getDocumentRequest(),
+                getDocumentResponse(),
+                responseFields(
+                        fieldWithPath("[].seq").type(JsonFieldType.NUMBER).description("순번"),
+                        fieldWithPath("[].email").type(JsonFieldType.STRING).description("이메일"),
+                        fieldWithPath("[].name").type(JsonFieldType.STRING).description("이름"),
+                        fieldWithPath("[].role").type(JsonFieldType.STRING).description("권한")
+
+                )
+        );
     }
 
     @DisplayName("유저 전체 조회시 유저 없음")
@@ -107,7 +138,7 @@ class AccountControllerTest extends BasicControllerTest {
 
 
         //when
-        ResultActions result = mockMvc.perform(get("/v1/user/{seq}",seq)
+        ResultActions result = mockMvc.perform(RestDocumentationRequestBuilders.get("/v1/user/{seq}",seq)
                                             .header("X-AUTH-TOKEN",authToken)
                                             .accept(MediaType.APPLICATION_JSON_VALUE));
 
@@ -115,8 +146,28 @@ class AccountControllerTest extends BasicControllerTest {
         result
             .andExpect(status().isOk())
             .andExpect(jsonPath("$.seq").value(seq))
-            .andExpect(jsonPath("$.name").value(name));
+            .andExpect(jsonPath("$.name").value(name))
+            .andDo(GET_USER_FIND_DOCUMENT());
     }
+
+
+    private RestDocumentationResultHandler GET_USER_FIND_DOCUMENT() {
+        return document("api-user-find",
+                getDocumentRequest(),
+                getDocumentResponse(),
+                pathParameters(
+                        parameterWithName("seq").description("순번")
+                        ),
+                responseFields(
+                        fieldWithPath("seq").type(JsonFieldType.NUMBER).description("순번").optional(),
+                        fieldWithPath("email").type(JsonFieldType.STRING).description("이메일").optional(),
+                        fieldWithPath("name").type(JsonFieldType.STRING).description("이름").optional(),
+                        fieldWithPath("role").type(JsonFieldType.STRING).description("권한").optional()
+
+                )
+        );
+    }
+
 
 
     @DisplayName("유저 조회 실패")

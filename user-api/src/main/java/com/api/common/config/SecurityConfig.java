@@ -11,7 +11,10 @@ import org.springframework.security.config.annotation.web.configuration.EnableWe
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
+import org.springframework.security.web.header.writers.frameoptions.WhiteListedAllowFromStrategy;
+import org.springframework.security.web.header.writers.frameoptions.XFrameOptionsHeaderWriter;
 
+import java.util.Arrays;
 
 
 @EnableWebSecurity
@@ -30,9 +33,17 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
                 .csrf().disable() //csrf 보안토큰 NO
                 .sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS) //토큰기반인증이므로 세션 사용NO
                 .and()
+//                .headers().addHeaderWriter(
+//                    new XFrameOptionsHeaderWriter(
+//                            new WhiteListedAllowFromStrategy(Arrays.asList("localhost"))
+//                    )
+//                )
+                .headers().frameOptions().sameOrigin()
+                .and()
                 .authorizeRequests() //요청에한 사용권한 체크
                 .antMatchers(HttpMethod.POST,"/v1/user/login").permitAll()
                 .antMatchers(HttpMethod.POST,"/v1/user").permitAll()
+                .antMatchers("/h2-console/**").permitAll()
                 .anyRequest().authenticated()
                 .and()
                 .addFilterBefore(new CustomFilter(jwtTokenProcess),

@@ -1,0 +1,1 @@
+INSERT INTO ACCOUNT (seq, email, password, name, role, create_date, modified_date) VALUES (1, '055055@055055.com', '{bcrypt}$2a$10$RM0ErQN6S9aPpdf06gqhW./e7v7FKgSxxo9BCuiByidlR3W90Ytle', '055055','MEMBER',CURRENT_TIMESTAMP,CURRENT_TIMESTAMP );

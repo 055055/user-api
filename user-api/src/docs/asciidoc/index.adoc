@@ -1,0 +1,62 @@
+ifndef::snippets[]
+:snippets: ../../../build/generated-snippets
+endif::[]
+= API Document
+Doc Writer <055055>
+:doctype: book
+:icons: font
+:source-highlighter: highlightjs
+:toc: left
+:toclevels: 3
+:sectlinks:
+:docinfo: shared-head
+:appversion : 1.0
+
+[[introduction]]
+== BackOffice API
+
+BackOffice ToyProject API v.{appversion}
+
+[[common]]
+== 공통 사항
+
+NOTE: API에 관계없이 아래 사항을 지켜주셔야 합니다.
+
+=== Domain
+
+|===
+| 환경 | Domain
+
+| 개발서버
+| `http://docs.api.com:8080`
+
+| 운영서버
+| `https://docs.api.com`
+|===
+
+=== Error
+[cols="2,5,2"]
+|===
+| 에러 코드 | 에러 내용 | HttpStatus
+
+| 1000
+| 중복된 사용자 아이디
+| 409
+
+| 4000
+| 찾고자 하는 유저가 없습니다.
+| 404
+
+| 4001
+| 찾고자 하는 유저가 없거나 비밀번호가 유효하지 않습니다.
+| 404
+
+| 5000
+| 내부 서버 오류
+| 500
+
+|===
+
+&#160;
+
+include::user.adoc[]

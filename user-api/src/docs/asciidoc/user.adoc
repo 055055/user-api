@@ -1,0 +1,51 @@
+== USER API
+
+[[api-user-findAll]]
+=== 유저 전체 조회
+
+==== Request
+
+
+===== Request HTTP Example
+
+include::{snippets}/api-user-findAll/http-request.adoc[]
+
+==== Response
+
+===== Response HTTP Example
+
+include::{snippets}/api-user-findAll/http-response.adoc[]
+
+===== Response Fields
+
+include::{snippets}/api-user-findAll/response-fields.adoc[]
+
+
+&#160;
+
+[[api-user-find]]
+=== 유저 조회
+
+==== Request
+
+===== Request HTTP Example
+
+include::{snippets}/api-user-find/http-request.adoc[]
+
+===== Request PathParameters
+
+include::{snippets}/api-user-find/path-parameters.adoc[]
+
+==== Response
+
+
+===== Response HTTP Example
+
+include::{snippets}/api-user-find/http-response.adoc[]
+
+===== Response Fields
+
+include::{snippets}/api-user-find/response-fields.adoc[]
+
+
+&#160;

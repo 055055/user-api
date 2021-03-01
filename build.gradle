@@ -3,6 +3,7 @@ buildscript {
         springBootVersion = '2.4.1'
     }
     repositories {
+        jcenter()
         mavenCentral()
     }
     dependencies {
@@ -22,6 +23,7 @@ subprojects {
     sourceCompatibility = 11
 
     repositories {
+        jcenter()
         mavenCentral()
     }
 

@@ -6,11 +6,13 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Disabled;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.restdocs.RestDocumentationContextProvider;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import org.springframework.web.context.WebApplicationContext;
 import org.springframework.web.filter.CharacterEncodingFilter;
 
+import static org.springframework.restdocs.mockmvc.MockMvcRestDocumentation.documentationConfiguration;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 
 
@@ -32,10 +34,20 @@ public abstract class BasicControllerTest {
     protected String authToken = "eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiIwNTUwNTVAMDU1MDU1LmNvbSIsInJvbGUiOiJ1c2VyIiwiaWF0IjoxNjEwMTEyNjk4LCJleHAiOjE2MTAxMTI5OTh9.wb_Sa8ZIVMIFIzWiNeND3IC7qkPpijyhqBePJJ5A314";
 
     @BeforeEach
-    public void setMockMvc(){
+    public void setMockMvc(RestDocumentationContextProvider restDocumenttation){
+//        this.mockMvc = MockMvcBuilders.webAppContextSetup(ctx)
+//                .alwaysDo(print())
+//                .addFilters(new CharacterEncodingFilter("UTF-8", true)) //application/json;charset=UTF-8
+//                .build();
         this.mockMvc = MockMvcBuilders.webAppContextSetup(ctx)
-                .alwaysDo(print())
-                .addFilters(new CharacterEncodingFilter("UTF-8", true)) //application/json;charset=UTF-8
-                .build();
+                        .addFilter(((request, response, chain) -> {
+                            response.setCharacterEncoding("UTF-8");
+                            chain.doFilter(request, response);
+                        }))
+                        .apply(documentationConfiguration(restDocumenttation))
+                        .alwaysDo(print())
+                        .build();
+
+
     }
 }
