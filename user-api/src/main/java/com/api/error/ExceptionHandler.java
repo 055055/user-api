@@ -8,9 +8,10 @@ import org.springframework.web.bind.annotation.RestControllerAdvice;
 @RestControllerAdvice
 public class ExceptionHandler {
 
-    @org.springframework.web.bind.annotation.ExceptionHandler
-    public ResponseEntity serviceExceptionHandler(ServiceException e){
-        return new ResponseEntity<>(e.getServiceError().getResultError(),e.getServiceError().getHttpStatus());
-    }
+	@org.springframework.web.bind.annotation.ExceptionHandler
+	public ResponseEntity serviceExceptionHandler(ServiceException e) {
+		return new ResponseEntity<>(e.getServiceError().getResultError(),
+			e.getServiceError().getHttpStatus());
+	}
 
 }

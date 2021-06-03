@@ -9,9 +9,10 @@ import lombok.ToString;
 @Getter
 @Setter
 public class AccountUpdateReqDto {
-    private String email;
-    private String name;
-    private String password;
-    private Account.Role role;
+
+	private String email;
+	private String name;
+	private String password;
+	private Account.Role role;
 
 }

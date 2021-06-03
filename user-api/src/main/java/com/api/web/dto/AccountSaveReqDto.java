@@ -11,20 +11,17 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 @Setter
 public class AccountSaveReqDto {
 
-    private String email;
+	private String email;
+	private String name;
+	private String password;
 
-    private String name;
-
-    private String password;
-
-
-    public Account createAccount(PasswordEncoder passwordEncoder){
-        return Account.builder()
-                    .password(passwordEncoder.encode(this.password))
-                    .name(this.name)
-                    .email(this.email)
-                    .role(Account.Role.MEMBER)
-                    .build();
-            }
+	public Account createAccount(PasswordEncoder passwordEncoder) {
+		return Account.builder()
+			.password(passwordEncoder.encode(this.password))
+			.name(this.name)
+			.email(this.email)
+			.role(Account.Role.MEMBER)
+			.build();
+	}
 
 }

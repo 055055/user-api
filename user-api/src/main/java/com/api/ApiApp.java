@@ -10,14 +10,14 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 public class ApiApp {
 
 
-    public static void main(String[] args) {
-        SpringApplication.run(ApiApp.class, args);
-    }
+	public static void main(String[] args) {
+		SpringApplication.run(ApiApp.class, args);
+	}
 
-    //임시 위치. SecurityConfig로 이동시  순환참조 문제 발생 JwtTokenProvider -> AccountService -> SecurityConfig -> JwtTokenProvider
-    @Bean
-    public PasswordEncoder passwordEncoder(){
-        return PasswordEncoderFactories.createDelegatingPasswordEncoder();
-    }
+	//임시 위치. SecurityConfig로 이동시  순환참조 문제 발생 JwtTokenProvider -> AccountService -> SecurityConfig -> JwtTokenProvider
+	@Bean
+	public PasswordEncoder passwordEncoder() {
+		return PasswordEncoderFactories.createDelegatingPasswordEncoder();
+	}
 
 }

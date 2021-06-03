@@ -11,10 +11,6 @@ import org.springframework.security.config.annotation.web.configuration.EnableWe
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
-import org.springframework.security.web.header.writers.frameoptions.WhiteListedAllowFromStrategy;
-import org.springframework.security.web.header.writers.frameoptions.XFrameOptionsHeaderWriter;
-
-import java.util.Arrays;
 
 
 @EnableWebSecurity
@@ -22,42 +18,41 @@ import java.util.Arrays;
 @RequiredArgsConstructor
 public class SecurityConfig extends WebSecurityConfigurerAdapter {
 
-    private final JwtTokenProcess jwtTokenProcess;
+	private final JwtTokenProcess jwtTokenProcess;
 
-    @Override
-    protected void configure(HttpSecurity http) throws Exception {
+	@Override
+	protected void configure(HttpSecurity http) throws Exception {
 
-
-        http.
-              httpBasic().disable()  //rest api만을 할것이기 때문에 기본설정 해제
-                .csrf().disable() //csrf 보안토큰 NO
-                .sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS) //토큰기반인증이므로 세션 사용NO
-                .and()
+		http.
+			httpBasic().disable()  //rest api만을 할것이기 때문에 기본설정 해제
+			.csrf().disable() //csrf 보안토큰 NO
+			.sessionManagement()
+			.sessionCreationPolicy(SessionCreationPolicy.STATELESS) //토큰기반인증이므로 세션 사용NO
+			.and()
 //                .headers().addHeaderWriter(
 //                    new XFrameOptionsHeaderWriter(
 //                            new WhiteListedAllowFromStrategy(Arrays.asList("localhost"))
 //                    )
 //                )
-                .headers().frameOptions().sameOrigin()
-                .and()
-                .authorizeRequests() //요청에한 사용권한 체크
-                .antMatchers(HttpMethod.POST,"/v1/user/login").permitAll()
-                .antMatchers(HttpMethod.POST,"/v1/user").permitAll()
-                .antMatchers("/h2-console/**").permitAll()
-                .anyRequest().authenticated()
-                .and()
-                .addFilterBefore(new CustomFilter(jwtTokenProcess),
-                        UsernamePasswordAuthenticationFilter.class);
-                    //JWTAuthenticationFilter를 UsernamePasswordAuthenticationFilter 전에 넣는다.
-    }
+			.headers().frameOptions().sameOrigin()
+			.and()
+			.authorizeRequests() //요청에한 사용권한 체크
+			.antMatchers(HttpMethod.POST, "/v1/user/login").permitAll()
+			.antMatchers(HttpMethod.POST, "/v1/user").permitAll()
+			.antMatchers("/h2-console/**").permitAll()
+			.anyRequest().authenticated()
+			.and()
+			.addFilterBefore(new CustomFilter(jwtTokenProcess),
+				UsernamePasswordAuthenticationFilter.class);
+		//JWTAuthenticationFilter를 UsernamePasswordAuthenticationFilter 전에 넣는다.
+	}
 
-    // authenticationManager를 Bean 등록합니다.
-    @Bean
-    @Override
-    public AuthenticationManager authenticationManagerBean() throws Exception {
-        return super.authenticationManagerBean();
-    }
-
+	// authenticationManager를 Bean 등록합니다.
+	@Bean
+	@Override
+	public AuthenticationManager authenticationManagerBean() throws Exception {
+		return super.authenticationManagerBean();
+	}
 
 
 }

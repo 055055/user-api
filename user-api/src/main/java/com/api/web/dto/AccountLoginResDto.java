@@ -9,7 +9,8 @@ import lombok.ToString;
 @Getter
 @Setter
 public class AccountLoginResDto {
-    private String email;
-    private Account.Role role;
+
+	private String email;
+	private Account.Role role;
 
 }

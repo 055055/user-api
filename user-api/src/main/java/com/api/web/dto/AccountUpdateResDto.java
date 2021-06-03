@@ -11,10 +11,12 @@ import java.time.LocalDateTime;
 @Getter
 @Setter
 public class AccountUpdateResDto {
-    private Long seq;
-    private String email;
-    private String name;
-    private Account.Role role;
-    private LocalDateTime createDate;
-    private LocalDateTime modifiedDate;
+
+	private Long seq;
+	private String email;
+	private String name;
+	private Account.Role role;
+	private LocalDateTime createDate;
+	private LocalDateTime modifiedDate;
+
 }

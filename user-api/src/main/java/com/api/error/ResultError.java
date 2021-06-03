@@ -1,6 +1,5 @@
 package com.api.error;
 
-import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.Setter;
@@ -12,9 +11,9 @@ import org.springframework.http.HttpStatus;
 @Setter
 @Builder
 public class ResultError {
-    private String resultCode;
-    private String resultMessage;
-    private HttpStatus httpStatus;
 
+	private String resultCode;
+	private String resultMessage;
+	private HttpStatus httpStatus;
 
 }
