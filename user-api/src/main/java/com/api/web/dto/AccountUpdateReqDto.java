@@ -14,5 +14,4 @@ public class AccountUpdateReqDto {
 	private String name;
 	private String password;
 	private Account.Role role;
-
 }

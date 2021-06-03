@@ -18,5 +18,4 @@ public class AccountUpdateResDto {
 	private Account.Role role;
 	private LocalDateTime createDate;
 	private LocalDateTime modifiedDate;
-
 }

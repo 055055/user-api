@@ -17,7 +17,6 @@ public class UserAccount extends User {
 		this.account = account;
 	}
 
-
 	public Account getUser() {
 		return account;
 	}

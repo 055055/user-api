@@ -74,6 +74,5 @@ public class JwtTokenProcess {
 			return false;
 		}
 	}
-
 }
 

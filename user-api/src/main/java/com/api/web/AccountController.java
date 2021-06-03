@@ -52,6 +52,4 @@ public class AccountController {
 		@PathVariable Long seq) {
 		return accountService.update(seq, req);
 	}
-
-
 }

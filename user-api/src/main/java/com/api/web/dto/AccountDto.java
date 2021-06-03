@@ -15,7 +15,6 @@ public class AccountDto {
 	private String email;
 	private String name;
 	private Account.Role role;
-
 }
 
 

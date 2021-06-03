@@ -2,8 +2,8 @@ package com.api.web;
 
 import com.api.common.filter.CustomFilter;
 import com.api.entitiy.user.Account;
-import com.api.error.ServiceError;
-import com.api.error.ServiceException;
+import com.api.error.ErrorCode;
+import com.api.error.CustomException;
 import com.api.service.AccountService;
 import com.api.web.dto.*;
 import org.junit.jupiter.api.DisplayName;
@@ -173,7 +173,7 @@ class AccountControllerTest extends BasicControllerTest {
 		Long seq = 1L;
 
 		given(this.accountService.findyBySeq(anyLong()))
-			.willThrow(new ServiceException(ServiceError.USER_NOT_FOUND));
+			.willThrow(new CustomException(ErrorCode.ACCOUNT_NOT_FOUND));
 
 		//when
 		ResultActions result = mockMvc.perform(get("/v1/user/{seq}", seq)
@@ -247,7 +247,7 @@ class AccountControllerTest extends BasicControllerTest {
 		Long seq = 1L;
 
 		//given
-		willThrow(new ServiceException(ServiceError.USER_NOT_FOUND)).given(accountService)
+		willThrow(new CustomException(ErrorCode.ACCOUNT_NOT_FOUND)).given(accountService)
 			.delete(anyLong());
 
 		//when
@@ -308,7 +308,7 @@ class AccountControllerTest extends BasicControllerTest {
 		req.setName(name);
 		req.setEmail(email);
 		//given
-		willThrow(new ServiceException(ServiceError.INTERNAL_SERIVCE_ERROR))
+		willThrow(new CustomException(ErrorCode.INTERNAL_SERIVCE_ERROR))
 			.given(accountService).update(anyLong(), any(AccountUpdateReqDto.class));
 
 		//when

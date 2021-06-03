@@ -4,8 +4,8 @@ package com.api.java;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
-import com.api.error.ServiceError;
-import com.api.error.ServiceException;
+import com.api.error.ErrorCode;
+import com.api.error.CustomException;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
@@ -23,10 +23,10 @@ public class JavaTest {
 	@DisplayName("ServiceException USER_ID_DUPLICATE 테스트 성공")
 	@Test
 	public void SERVICE_EXCEPTION_MESSAGE_TEST_SUCCESS() {
-		ServiceException exception = assertThrows(ServiceException.class, () -> {
-			throw new ServiceException(ServiceError.USER_ID_DUPLICATE);
+		CustomException exception = assertThrows(CustomException.class, () -> {
+			throw new CustomException(ErrorCode.ACCOUNT_DUPLICATE);
 		});
-		assertEquals(exception.getServiceError().getResultMessage(), "중복된 사용자 아이디");
+		assertEquals(exception.getErrorCode().getResultMessage(), "중복된 사용자 아이디");
 	}
 
 }

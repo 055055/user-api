@@ -15,5 +15,4 @@ public class ResultError {
 	private String resultCode;
 	private String resultMessage;
 	private HttpStatus httpStatus;
-
 }

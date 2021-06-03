@@ -23,5 +23,4 @@ public class AccountSaveReqDto {
 			.role(Account.Role.MEMBER)
 			.build();
 	}
-
 }

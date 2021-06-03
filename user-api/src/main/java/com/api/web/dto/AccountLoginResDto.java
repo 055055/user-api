@@ -12,5 +12,4 @@ public class AccountLoginResDto {
 
 	private String email;
 	private Account.Role role;
-
 }
