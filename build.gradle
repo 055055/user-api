@@ -22,7 +22,6 @@ subprojects {
     sourceCompatibility = 11
 
     repositories {
-        jcenter()
         mavenCentral()
     }
 
@@ -48,4 +47,3 @@ project(':user-api') {
         compile project(':user-entity')
     }
 }
-

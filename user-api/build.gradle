@@ -3,6 +3,7 @@ plugins {
     id "org.asciidoctor.convert" version "1.5.9.2"
 }
 
+ext.profile = (!project.hasProperty('profile') || !profile) ? 'dev' : profile
 
 sourceCompatibility = '11'
 targetCompatibility = '11'
@@ -17,9 +18,9 @@ bootJar {
     from ("${asciidoctor.outputDir}/html5"){
         into 'static/docs'
     }
+
+    archiveFileName = "user-api-${profile}.jar"
 }
-
-
 
 dependencies {
     implementation 'org.springframework.boot:spring-boot-starter-web'
@@ -32,5 +33,17 @@ dependencies {
 
     testImplementation 'org.springframework.security:spring-security-test'
     testImplementation 'org.springframework.restdocs:spring-restdocs-mockmvc'
+}
 
+sourceSets {
+    println(" build profile check : $profile ")
+
+    main {
+        java {
+            srcDirs "src/main/java"
+        }
+        resources {
+            srcDirs "src/main/resources", "src/main/resources-env/${profile}"
+        }
+    }
 }

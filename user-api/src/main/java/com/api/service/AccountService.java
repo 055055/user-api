@@ -1,9 +1,8 @@
 package com.api.service;
 
 import com.api.entitiy.user.Account;
-import com.api.error.CustomException;
-import com.api.error.ErrorCode;
 import com.api.error.AccountException;
+import com.api.error.ErrorCode;
 import com.api.repository.AccountRepository;
 import com.api.web.dto.AccountDto;
 import com.api.web.dto.AccountLoginReqDto;
@@ -61,12 +60,10 @@ public class AccountService implements UserDetailsService {
 
 	@Transactional
 	public void delete(Long seq) {
-
 		accountRepository.findById(seq).ifPresentOrElse(e -> accountRepository.delete(e)
 			, () -> {
 				throw new AccountException(ErrorCode.ACCOUNT_NOT_FOUND);
 			});
-
 	}
 
 	@Transactional
