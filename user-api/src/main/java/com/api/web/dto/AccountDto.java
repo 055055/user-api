@@ -14,7 +14,7 @@ public class AccountDto {
 	private Long seq;
 	private String email;
 	private String name;
-	private Account.Role role;
+	private String role;
 }
 
 

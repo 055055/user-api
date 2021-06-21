@@ -1,5 +1,6 @@
 package com.api.error;
 
+import java.util.List;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.Setter;
@@ -12,7 +13,16 @@ import org.springframework.http.HttpStatus;
 @Builder
 public class ResultError {
 
-	private String resultCode;
-	private String resultMessage;
+	private String code;
+	private String message;
 	private HttpStatus httpStatus;
+	private List<FieldValue> fieldValues;
+
+	@Getter
+	@Builder
+	public static class FieldValue {
+		private String field;
+		private Object value;
+		private String reason;
+	}
 }

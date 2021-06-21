@@ -50,7 +50,6 @@ public class AccountService implements UserDetailsService {
 
 	@Transactional
 	public AccountSaveResDto save(AccountSaveReqDto req) {
-
 		accountRepository.findByEmail(req.getEmail()).ifPresent(e -> {
 			throw new AccountException(ErrorCode.ACCOUNT_DUPLICATE);
 		});
@@ -68,8 +67,8 @@ public class AccountService implements UserDetailsService {
 
 	@Transactional
 	public AccountUpdateResDto update(Long seq, AccountUpdateReqDto req) {
-		Account account = accountRepository.findById(seq).orElseThrow(
-			() -> {
+		Account account = accountRepository.findBySeqAndEmail(seq, req.getEmail())
+			.orElseThrow(() -> {
 				throw new AccountException(ErrorCode.ACCOUNT_NOT_FOUND);
 			});
 		account.updateUser(req.getPassword(), req.getName(), req.getRole());

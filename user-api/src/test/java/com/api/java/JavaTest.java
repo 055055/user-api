@@ -26,7 +26,7 @@ public class JavaTest {
 		CustomException exception = assertThrows(CustomException.class, () -> {
 			throw new CustomException(ErrorCode.ACCOUNT_DUPLICATE);
 		});
-		assertEquals(exception.getErrorCode().getResultMessage(), "중복된 사용자 아이디");
+		assertEquals(exception.getErrorCode().getMessage(), "중복된 사용자 아이디");
 	}
 
 }

@@ -14,7 +14,8 @@ public class AccountSaveResDto {
 	private Long seq;
 	private String email;
 	private String name;
-	private Account.Role role;
+	private String role;
 	private LocalDateTime createDate;
 	private LocalDateTime modifiedDate;
 }
+

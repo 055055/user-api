@@ -1,11 +1,38 @@
 package com.api.web;
 
+import static com.api.restdocsConfig.RestDocsConfig.getDocumentRequest;
+import static com.api.restdocsConfig.RestDocsConfig.getDocumentResponse;
+import static org.hamcrest.Matchers.empty;
+import static org.hamcrest.Matchers.hasSize;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyLong;
+import static org.mockito.BDDMockito.given;
+import static org.mockito.BDDMockito.willDoNothing;
+import static org.mockito.BDDMockito.willThrow;
+import static org.springframework.restdocs.mockmvc.MockMvcRestDocumentation.document;
+import static org.springframework.restdocs.payload.PayloadDocumentation.fieldWithPath;
+import static org.springframework.restdocs.payload.PayloadDocumentation.responseFields;
+import static org.springframework.restdocs.request.RequestDocumentation.parameterWithName;
+import static org.springframework.restdocs.request.RequestDocumentation.pathParameters;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.patch;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
+
 import com.api.common.filter.CustomFilter;
-import com.api.entitiy.user.Account;
-import com.api.error.ErrorCode;
+import com.api.common.type.AccountRole;
 import com.api.error.CustomException;
+import com.api.error.ErrorCode;
 import com.api.service.AccountService;
-import com.api.web.dto.*;
+import com.api.web.dto.AccountDto;
+import com.api.web.dto.AccountSaveReqDto;
+import com.api.web.dto.AccountSaveResDto;
+import com.api.web.dto.AccountUpdateReqDto;
+import com.api.web.dto.AccountUpdateResDto;
+import java.time.LocalDateTime;
+import java.util.Arrays;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -20,23 +47,6 @@ import org.springframework.restdocs.mockmvc.RestDocumentationRequestBuilders;
 import org.springframework.restdocs.mockmvc.RestDocumentationResultHandler;
 import org.springframework.restdocs.payload.JsonFieldType;
 import org.springframework.test.web.servlet.ResultActions;
-
-import java.time.LocalDateTime;
-import java.util.Arrays;
-
-import static com.api.restdocsConfig.RestDocsConfig.getDocumentRequest;
-import static com.api.restdocsConfig.RestDocsConfig.getDocumentResponse;
-import static org.hamcrest.Matchers.empty;
-import static org.hamcrest.Matchers.hasSize;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.anyLong;
-import static org.mockito.BDDMockito.*;
-import static org.springframework.restdocs.mockmvc.MockMvcRestDocumentation.document;
-import static org.springframework.restdocs.payload.PayloadDocumentation.*;
-import static org.springframework.restdocs.request.RequestDocumentation.*;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 
 @ExtendWith(RestDocumentationExtension.class)
@@ -60,13 +70,13 @@ class AccountControllerTest extends BasicControllerTest {
 		adminUser.setSeq(1L);
 		adminUser.setEmail("055055@055055.com");
 		adminUser.setName("055055");
-		adminUser.setRole(Account.Role.ADMIN);
+		adminUser.setRole(AccountRole.ADMIN.getName());
 
 		AccountDto memberUser = new AccountDto();
 		memberUser.setSeq(2L);
 		memberUser.setEmail("033033@033033.com");
 		memberUser.setName("033033");
-		memberUser.setRole(Account.Role.MEMBER);
+		memberUser.setRole(AccountRole.USER.getName());
 
 		given(this.accountService.findAll()).willReturn(Arrays.asList(adminUser, memberUser));
 
@@ -129,7 +139,7 @@ class AccountControllerTest extends BasicControllerTest {
 		user.setSeq(seq);
 		user.setEmail("055055@055055.com");
 		user.setName(name);
-		user.setRole(Account.Role.ADMIN);
+		user.setRole(AccountRole.ADMIN.getName());
 
 		given(this.accountService.findyBySeq(anyLong())).willReturn(user);
 
@@ -183,8 +193,8 @@ class AccountControllerTest extends BasicControllerTest {
 		//then
 		result
 			.andExpect(status().isNotFound())
-			.andExpect(jsonPath("$.resultCode").value("4000"))
-			.andExpect(jsonPath("$.resultMessage").value("찾고자 하는 유저가 없습니다."));
+			.andExpect(jsonPath("$.code").value("4000"))
+			.andExpect(jsonPath("$.message").value("찾고자 하는 유저가 없습니다."));
 
 	}
 
@@ -204,7 +214,7 @@ class AccountControllerTest extends BasicControllerTest {
 		res.setSeq(2L);
 		res.setEmail(email);
 		res.setName(name);
-		res.setRole(Account.Role.MEMBER);
+		res.setRole(AccountRole.USER.getName());
 		res.setModifiedDate(LocalDateTime.now());
 		res.setCreateDate(LocalDateTime.now());
 
@@ -256,8 +266,8 @@ class AccountControllerTest extends BasicControllerTest {
 
 		//then
 		result.andExpect(status().isNotFound())
-			.andExpect(jsonPath("$.resultCode").value("4000"))
-			.andExpect(jsonPath("$.resultMessage").value("찾고자 하는 유저가 없습니다."));
+			.andExpect(jsonPath("$.code").value("4000"))
+			.andExpect(jsonPath("$.message").value("찾고자 하는 유저가 없습니다."));
 	}
 
 
@@ -276,7 +286,7 @@ class AccountControllerTest extends BasicControllerTest {
 		AccountUpdateResDto res = new AccountUpdateResDto();
 		res.setEmail(email);
 		res.setName(name);
-		res.setRole(Account.Role.MEMBER);
+		res.setRole(AccountRole.USER.getName());
 		res.setSeq(seq);
 		res.setModifiedDate(updateDtm);
 		res.setCreateDate(updateDtm.minusDays(1L));
@@ -320,8 +330,8 @@ class AccountControllerTest extends BasicControllerTest {
 
 		//then
 		result.andExpect(status().isInternalServerError())
-			.andExpect(jsonPath("$.resultCode").value("5000"))
-			.andExpect(jsonPath("$.resultMessage").value("내부 서버 오류"));
+			.andExpect(jsonPath("$.code").value("5000"))
+			.andExpect(jsonPath("$.message").value("내부 서버 오류"));
 	}
 
 }

@@ -19,7 +19,7 @@ public class Account extends BaseEntitiy {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long seq;
 
-    @Column(nullable = false)
+    @Column(nullable = false, unique = true)
     private String email;
 
     @Column(nullable = false)
@@ -28,47 +28,26 @@ public class Account extends BaseEntitiy {
     @Column(nullable = false)
     private String name;
 
-    @Enumerated(EnumType.STRING)
-    private Role role;
+    @Column(nullable = false)
+    private String role;
 
     @Builder
-    public Account(String email, String password, String name, Role role) {
+    public Account(String email, String password, String name, String role) {
         this.email = email;
         this.password = password;
         this.name = name;
         this.role = role;
     }
 
-    public void updateUser(String password, String name, Role role) {
+    public void updateUser(String password, String name, String role) {
         if(StringUtils.hasText(password)){
             this.password = password;
         }
         if(StringUtils.hasText(name)){
             this.name = name;
         }
-        if(!ObjectUtils.isEmpty(role)){
+        if(StringUtils.hasText(role)){
             this.role = role;
-        }
-    }
-
-    public enum Role{
-        MEMBER("01","user"),
-        ADMIN("02","admin");
-
-        private String code;
-        private String roleName;
-
-        Role(String code, String roleName) {
-            this.code = code;
-            this.roleName = roleName;
-        }
-
-        public String getCode() {
-            return code;
-        }
-
-        public String getRoleName() {
-            return roleName;
         }
     }
 
