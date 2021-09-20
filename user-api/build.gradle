@@ -19,7 +19,7 @@ bootJar {
         into 'static/docs'
     }
 
-    archiveFileName = "user-api-${profile}.jar"
+    archiveFileName = "user-api.jar"
 }
 
 dependencies {
